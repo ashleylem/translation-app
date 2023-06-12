@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% include "sidebar.html" %}
+
+
+<div class="grid lg:grid-cols-3 gap-6">
+    {% for translation in translations %}
+    <div class="zoom shadow-lg rounded-lg relative overflow-hidden bg-no-repeat bg-cover"
+        style="background-position: 50%;" data-mdb-ripple="true" data-mdb-ripple-color="dark">
+        <img src="{{url_for('get_image', filename=translation.image)}}"
+            class="w-full transition duration-300 ease-linear align-middle" />
+        <a href="#!">
+            <div class="absolute top-0 right-0 bottom-0 left-0 w-full h-full overflow-hidden bg-fixed"
+                style="background-color: rgba(0, 0, 0, 0.3)">
+                <div class="flex justify-start items-end h-full">
+                    <h5 class="text-lg font-bold text-white m-6">{{ translation.filename }}</h5>
+                </div>
+            </div>
+            <div class="hover-overlay">
+                <div class="mask absolute top-0 right-0 bottom-0 left-0 w-full h-full overflow-hidden bg-fixed opacity-0 transition duration-300 ease-in-out hover:opacity-100"
+                    style="background-color: rgba(253, 253, 253, 0.15)"></div>
+            </div>
+        </a>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

@@ -1,19 +1,62 @@
-<head>
-    <title>{{ title }}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+{% extends 'base.html' %}
 
-<body>
-    <div class="App">
-        <header class="App-header">
-            <img src="{{ url_for('static', filename='Octocat.png') }}" class="App-logo" alt="logo" />
-            <p>
-                GitHub Codespaces <span class="heart">♥️</span> Flask
-            </p>
-            <p class="small">
-                Edit <code>templates/index.html</code> and refresh to see your changes!
-            </p>
-        </header>
+{% block content %}
+<div>
+    <div class="text-center bg-gray-50 text-gray-800 py-24 px-6">
+        <h1 class="text-5xl md:text-6xl xl:text-7xl font-bold tracking-tight mb-12">The best translator on the
+            market <br /><span class="text-blue-600">for your business</span></h1>
+        <a class="inline-block px-7 py-3 mr-2 bg-blue-600 text-white font-medium text-sm leading-snug uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out"
+            data-mdb-ripple="true" data-mdb-ripple-color="light" href="#!" role="button">Get started</a>
+        <a class="inline-block px-7 py-3 bg-transparent text-blue-600 font-medium text-sm leading-snug uppercase rounded hover:text-blue-700 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none focus:ring-0 active:bg-gray-200 transition duration-150 ease-in-out"
+            data-mdb-ripple="true" data-mdb-ripple-color="light" href="#!" role="button">Learn more</a>
     </div>
-</body>
+    <section class="container mx-auto px-6 p-10">
+        <h2 class="text-4xl font-bold text-center text-gray-800 mb-8">
+            Features
+        </h2>
+        <div class="flex items-center flex-wrap mb-20">
+            <div class="w-full md:w-1/2">
+                <h4 class="text-3xl text-gray-800 font-bold mb-3">File Upload</h4>
+                <p class="text-gray-600 mb-8">Upload a file you wish to translate and we'll do the rest!.</p>
+            </div>
+            <div class="w-full md:w-1/2">
+                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR1ITTLVTe5OVJo3pV5fx-_qVTb7tdKM1a3yA&usqp=CAU"
+                    alt="Monitoring" />
+            </div>
+        </div>
 
-</html>
+        <div class="flex items-center flex-wrap mb-20">
+            <div class="w-full md:w-1/2">
+                <img class="w-1/4 h-1/4"
+                    src="https://files.phpclasses.org/files/blog/file/Microsoft-Word-logo-500x491.png"
+                    alt="Reporting" />
+            </div>
+            <div class="w-full md:w-1/2 pl-10">
+                <h4 class="text-3xl text-gray-800 font-bold mb-3">Download</h4>
+                <p class="text-gray-600 mb-8">After submitting your file you'll recieve a Word document with your
+                    translated document.</p>
+            </div>
+        </div>
+
+        <div class="flex items-center flex-wrap mb-20">
+            <div class="w-full md:w-1/2">
+                <h4 class="text-3xl text-gray-800 font-bold mb-3">Accuracy</h4>
+                <p class="text-gray-600 mb-8">We use AI technology to translate your documents, providing the most
+                    accurate translations currently in the market.</p>
+            </div>
+            <div class="w-full md:w-1/2">
+                <img src="data:image/png;base64,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"
+                    alt="Syncing" />
+            </div>
+        </div>
+    </section>
+    <div class="bg-blue-100">
+        <p class="text-xl">AI Document Translator is a new way to easily and accurately get any documenty
+            translated. It uses AI technology to provide the most accurate translation
+            available. Try it out and you'll see just how accurate the translation is. Just upload a picture of
+            your document and the
+            translator will provide a Word document with your translation.</p>
+    </div>
+
+</div>
+{% endblock %}
