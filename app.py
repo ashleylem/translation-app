@@ -3,6 +3,7 @@ import os
 import openai
 import docx
 import cv2
+import config
 from cv2 import imdecode
 import subprocess
 from io import BytesIO
@@ -44,7 +45,7 @@ migrate = Migrate(app, db)
 
 
 # Replace with your OpenAI API key
-openai.api_key = "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"
+openai.api_key = config.api_key
 
 
 @app.context_processor
@@ -68,11 +69,6 @@ def inject_user_id():
 @app.route("/")
 def index():
     return render_template('index.html')
-
-
-@app.route("/profile")
-def profile():
-    return render_template('translate.html')
 
 
 ALLOWED_EXTENSIONS = {"pdf", "jpeg", "jpg", "png"}
@@ -145,10 +141,25 @@ def logout():
     session.clear()
     return redirect(url_for('index'))
 
-
-@app.route('/translate')
-def translate_template():
+@app.route("/profile")
+def profile():
     return render_template('translate.html')
+
+@app.route('/preview', methods=['POST'])
+def preview_image():
+    if 'file' not in request.files:
+        print("No file uploaded")
+        return "No file uploaded", 400
+
+    file = request.files['file']
+    file_path = preprocess_image(file)
+    print(file_path)
+
+    return render_template('translate.html', file_path=file_path)
+
+@app.route('/images/<path:filename>')
+def serve_image(filename):
+    return send_from_directory('temp', filename)
 
 
 @app.route('/translate', methods=['POST'])

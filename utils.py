@@ -21,93 +21,17 @@ import calendar
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from models import User, db
-from utils import *
 import uuid
 import numpy as np
 
 
-def extract_grouped_text(ocr_data):
-    dpi = 300
-    tolerance = dpi // 10
-
-    lines = group_words_to_lines(ocr_data, tolerance)
-    blocks = group_lines_to_blocks(lines, tolerance)
-    formatted_text = ""
-
-    for block in blocks:
-        for line in block:
-            text = ' '.join([str(word.get('text', '')) for word in line])
-            formatted_text += text + '\n'
-        formatted_text += '\n'
-
-    return formatted_text
-
-
-def group_words_to_lines(ocr_data, tolerance):
-
-    words = [
-        {
-            "text": ocr_data["text"][i],
-            "left": float(ocr_data["left"][i]),
-            "top": float(ocr_data["top"][i]),
-            "height": float(ocr_data["height"][i]),
-        }
-        for i in range(len(ocr_data["text"]))
-        if ocr_data["text"][i].strip()
-    ]
-
-    line_groups = groupby(
-        sorted(words, key=lambda word: word["top"]),
-        key=lambda word: find_nearest(word["top"], words, tolerance),
-    )
-    lines = [[word for word in words] for _, words in line_groups]
-
-    return lines
-
-
-def find_nearest(value, candidates, tolerance):
-    distances = [abs(candidate["top"] - value) for candidate in candidates]
-    min_distance = min(distances)
-    if min_distance <= tolerance:
-        return candidates[distances.index(min_distance)]
-    else:
-        print(f"No matching candidate found for {value}")
-        return None
-
-
-def group_lines_to_blocks(lines, tolerance):
-    blocks = []
-    current_block = []
-    for line in lines:
-        if not current_block:
-            current_block.append(line)
-            current_x = np.mean([float(word['left']) for word in line if isinstance(
-                word['left'], str) and word['left'].replace('.', '', 1).isdigit()])
-
-        else:
-            x = np.mean([float(word['left']) for word in line if isinstance(
-                word['left'], str) and word['left'].replace('.', '', 1).isdigit()])
-            if abs(x - current_x) <= tolerance:
-                current_block.append(line)
-            else:
-                blocks.append(current_block)
-                current_block = [line]
-                current_x = x
-
-    if current_block:
-        blocks.append(current_block)
-
-    return blocks
-
 
 def image_to_docx(file_stream, target_language, source_language, translator_name):
-    ocr_data = ocr_image(file_stream)
-    if not any(text.strip() for text in ocr_data["text"]):
+    source_text = ocr_image(file_stream)
+    if not source_text.strip():
         raise ValueError("No text detected in the image file")
-
-    grouped_text = extract_grouped_text(ocr_data)
-    translated_text = translate_text(
-        grouped_text, source_language, target_language, max_tokens_per_chunk=1000)
+    
+    translated_text = translate_text(source_text, source_language, target_language)
 
     doc = docx.Document()
 
@@ -175,9 +99,7 @@ Notary Public"""
     output_stream.seek(0)
     return output_stream
 
-
-
-def ocr_image(file):
+def preprocess_image(file):
     # Convert the file object to a NumPy array
     file_bytes = np.asarray(bytearray(file.read()), dtype=np.uint8)
 
@@ -208,26 +130,71 @@ def ocr_image(file):
     # Convert the OpenCV image (NumPy array) to a PIL Image
     pil_img = Image.fromarray(new_img)
 
+    # Specify the complete file path with a unique name and desired extension
+    file_path = os.path.join('temp', 'preview.jpg')
+
     # Save the preprocessed image as a JPEG using PIL
-    pil_img.save('preprocessed_image.jpg', 'JPEG')
+    pil_img.save(file_path)
+
+    return file_path
+
+
+def ocr_image(file):
 
     # Perform OCR
-    data = pytesseract.image_to_data(
-        new_img, config="--psm 3", lang='spa', output_type=pytesseract.Output.DICT)
+    data = pytesseract.image_to_string(
+        new_img, config="--psm 3")
     return data
 
 
-def translate_text(source_text, source_lang, target_lang, max_tokens_per_chunk):
-    print(source_text)
-    response = openai.Completion.create(
-        engine="text-davinci-003",
-        prompt=f"Translate the following text from {source_lang} to {target_lang}: {source_text}",
-        max_tokens=max_tokens_per_chunk,
-        n=1,
-        stop=None,
-        temperature=0.5,
-    )
+def split_text(text, max_tokens):
+    words = text.split()
+    chunks = []
+    current_chunk = []
 
-    translated_text = response.choices[0].text.strip()
-    return translated_text
+    for word in words:
+        current_chunk.append(word)
+        if sum(len(w) for w in current_chunk) >= max_tokens:
+            chunks.append(' '.join(current_chunk))
+            current_chunk = []
+
+    if current_chunk:
+        chunks.append(' '.join(current_chunk))
+
+    return chunks
+
+
+def translate_text(source_text, source_lang, target_lang, max_tokens_per_chunk=1500):
+    print(len(source_text))
+    if len(source_text) > max_tokens_per_chunk:
+        text_chunks = split_text(source_text, max_tokens_per_chunk)
+        translated_chunks = []
+        for chunk in text_chunks:
+            print(chunk)
+            response = openai.Completion.create(
+                engine="text-davinci-003",
+                prompt=f"Translate the following text from {source_lang} to {target_lang} in the exact format without summarizing: {chunk}",
+                max_tokens=max_tokens_per_chunk*2,
+                n=1,
+                stop=None,
+                temperature=0.5,
+            )
+            translated_chunk = response.choices[0].text.strip()
+            translated_chunks.append(translated_chunk)
+            translated_text = ' '.join(translated_chunks)
+            return translated_text
+    else:
+        print(source_text)
+        response = openai.Completion.create(
+                engine="text-davinci-003",
+                prompt=f"Translate the following text from {source_lang} to {target_lang} as close to the original formatting: {source_text}",
+                max_tokens=max_tokens_per_chunk * 2,
+                n=1,
+                stop=None,
+                temperature=0.5,
+            )
+        print(response)
+        return response.choices[0].text.strip()
+
+
 

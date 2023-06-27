@@ -1,6 +1,7 @@
 {
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "setup": "pip install Flask && pip install OpenAI && pip install python-docx && pip install opencv-python && sudo apt-get update && sudo apt-get install libgl1-mesa-glx && pip install Flask-Migrate && pip install pytesseract && pip install flask-jwt-extended",
     "create-css": "npx tailwindcss -i ./static/style.css -o static/css/main.css --watch",
     "pytesseract-ocr": "sudo apt-get update && sudo apt-get install -y tesseract-ocr tesseract-ocr-spa"
   },
