@@ -27,7 +27,7 @@ import uuid
 import numpy as np
 
 
-pytesseract.pytesseract.tesseract_cmd = "/usr/bin/tesseract"
+# pytesseract.pytesseract.tesseract_cmd = "/usr/bin/tesseract"
 
 app = Flask(__name__, static_folder='static', static_url_path='')
 
@@ -92,7 +92,7 @@ def register():
 
         if user:
             flash("User already exists")
-            return redirect(url_for('profile'))
+            return redirect(url_for('login'))
 
         user = User(username=username, email=email,
                     password=hashed_password, name=name, id=id)
@@ -152,42 +152,34 @@ def preview_image():
         return "No file uploaded", 400
 
     file = request.files['file']
-    file_path = preprocess_image(file)
-    print(file_path)
+    filename= file.filename
 
-    return render_template('translate.html', file_path=file_path)
 
-@app.route('/images/<path:filename>')
+    preview_name = preprocess_image(file, filename)
+
+    return render_template('translate.html', filename=preview_name)
+
+@app.route('/temp/<path:filename>')
 def serve_image(filename):
     return send_from_directory('temp', filename)
 
+@app.route('/cancel')
+def cancel():
+    os.remove('temp/preview.jpg')
+    return redirect(url_for('profile'))
 
 @app.route('/translate', methods=['POST'])
 def translate():
-    if 'file' not in request.files:
-        print("No file uploaded")
-        return "No file uploaded", 400
 
-    file = request.files['file']
+    file_path= 'temp/preview.jpg'
     target_language = request.form.get('target_lang')
     source_language = request.form.get('source_lang')
     translator_name = request.form.get('translator_name')
-    filename, file_ext = os.path.splitext(file.filename)
+    filename = request.form.get('filename')
+    file_ext='.jpg'
 
-    if file_ext.lower()[1:] not in ALLOWED_EXTENSIONS:
-        print(
-            f"Invalid file type. Received file_ext: {file_ext.lower()}, allowed extensions: {ALLOWED_EXTENSIONS}")
-        return "Invalid file type", 400
 
-    try:
-        if file_ext.lower() == '.pdf':
-            return "Invalid File Type"
-        else:  # Assuming it's an image file
-            output_stream = image_to_docx(
-                file, target_language, source_language, translator_name)
-    except ValueError as e:
-        print(f"Error: {e}")
-        return str(e), 400
+    output_stream = image_to_docx(file_path, target_language, source_language, translator_name)
 
     output_stream = BytesIO(output_stream.getvalue())
 
@@ -205,12 +197,13 @@ def translate():
             folder_name, f'translated_{filename}.docx')
         with open(output_file_path, 'wb') as f:
             f.write(output_stream.getbuffer())
+
         image_file_path = os.path.join(
             image_folder_name, f'{filename}{file_ext}')
-        file.save(image_file_path)
+        shutil.move(file_path, image_file_path)
 
         document = Translations(id=str(uuid.uuid4()), user_id=session.get(
-            'user_id'), language=source_language, filename=f'translated_{filename}.docx', original_image=file.filename)
+            'user_id'), language=source_language, filename=f'translated_{filename}.docx', original_image=filename)
         db.session.add(document)
         db.session.commit()
 
@@ -232,15 +225,9 @@ def translations_user(user_id):
     translations = Translations.query.filter_by(user_id=user_id).all()
     return render_template('translations.html', translations=translations)
 
-@app.route('/images/<filename>')
+@app.route('/original_images/<filename>')
 def get_image(filename):
-    with open(f'original_images/{filename}', 'rb') as f:
-        image_data = f.read()
-
-    response = make_response(image_data)
-    response.headers.set('Content-Type', 'image/jpeg')
-    response.headers.set('Content-Disposition', 'inline')
-    return response
+    return send_from_directory('original_images', filename)
     
 
 

@@ -8,7 +8,7 @@
     {% for translation in translations %}
     <div class="zoom shadow-lg rounded-lg relative overflow-hidden bg-no-repeat bg-cover"
         style="background-position: 50%;" data-mdb-ripple="true" data-mdb-ripple-color="dark">
-        <img src="{{url_for('get_image', filename=translation.image)}}"
+        <img src="{{url_for('get_image', filename=translation.original_image)}}"
             class="w-full transition duration-300 ease-linear align-middle" />
         <a href="#!">
             <div class="absolute top-0 right-0 bottom-0 left-0 w-full h-full overflow-hidden bg-fixed"

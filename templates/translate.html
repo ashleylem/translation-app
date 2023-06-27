@@ -9,39 +9,61 @@
     <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-2">
         <div class="md:col-span-2 lg:col-span-1">
             <div class="h-full py-8 px-6 space-y-6 rounded-xl border border-gray-200 bg-white ">
-                <h1 class="text-2xl text-center pb-2 ml-2"> Translator</h1>
+                <h1 class="text-2xl text-center pb-2 ml-2"> Step One</h1>
                 <div class="flex justify-center ">
-                    {%if not file_path %}
-                        {% include "preview.html" %}
+
+                    {%if not filename %}
+                    {% include "preview.html" %}
                     {%endif%}
-                    {% if file_path %}
-                    <div>
-                    <img src="{{ url_for('serve_image', filename=file_path) }}" alt="Uploaded Image"></div>
-                    {% endif %}
+                    {% if filename %}
 
-                    <!-- <label class="peer  block mx-6 font-semibold text-sm" for="source-lang">Source
-                        Language:</label>
-                    <input class="h-12 px-4  bg-gray-200 mt-2 rounded focus:outline-none focus:ring-2 mx-6 "
-                        placeholder="" type="text" id="source-lang" name="source_lang"
-                        placeholder="Enter source language" required>
-                    <br>
-                    <label class="peer block mx-6 font-semibold text-sm" for="target-lang">Target
-                        Language:</label>
-                    <input class="h-12 px-4  bg-gray-200 mt-2 rounded focus:outline-none focus:ring-2 mx-6 "
-                        placeholder="" type="text" name="target_lang" id="target-lang" required>
-                    <br>
-                    <label class="peer block mx-6 font-semibold text-sm" for="translator-name">Translator
-                        Name:</label>
-                    <input class="h-12 px-4  bg-gray-200 mt-2 rounded focus:outline-none focus:ring-2 mx-6 "
-                        placeholder="" type="text" name="translator_name" id="translator-name" required> -->
+                    <img src="{{ url_for('serve_image', filename=filename) }}" alt="Uploaded Image">
                 </div>
-
-
+                <div>Does your picture look good? Then continue onto Step Two. If there are any issues press cancel and take a picture of your document again, making sure it's as clear as possible</div>
+                {% endif %}
             </div>
         </div>
+        {%if filename%}
+        <div class="md:col-span-2 lg:col-span-1">
+            <div class="h-full py-8 px-6 space-y-6 rounded-xl border border-gray-200 bg-white ">
+                <h1 class="text-2xl text-center pb-2 ml-2"> Step Two</h1>
+                <div class="flex justify-center ">
+                    <form method="POST" action="/translate">
+                        <label class="peer  block mx-6 font-semibold text-sm" for="source-lang">Source
+                            Language:</label>
+                        <input class="h-12 px-4  bg-gray-200 mt-2 rounded focus:outline-none focus:ring-2 mx-6 "
+                            placeholder="" type="text" id="source-lang" name="source_lang"
+                            placeholder="Enter source language" required>
+                        <br>
+                        <label class="peer block mx-6 font-semibold text-sm" for="target-lang">Target
+                            Language:</label>
+                        <input class="h-12 px-4  bg-gray-200 mt-2 rounded focus:outline-none focus:ring-2 mx-6 "
+                            placeholder="" type="text" name="target_lang" id="target-lang" required>
+                        <br>
+                        <label class="peer block mx-6 font-semibold text-sm" for="translator-name">Translator
+                            Name:</label>
+                        <input class="h-12 px-4  bg-gray-200 mt-2 rounded focus:outline-none focus:ring-2 mx-6 "
+                            placeholder="" type="text" name="translator_name" id="translator-name" required>
+                        <br>
+                        <label class="peer block mx-6 font-semibold text-sm" for="translator-name">Filename:</label>
+                        <input class="h-12 px-4  bg-gray-200 mt-2 rounded focus:outline-none focus:ring-2 mx-6 "
+                            placeholder="" type="text" name="filename" id="filename" required>
+                        <br>
+                        <button type="submit" class="bg-blue-100 mt-2 p-2 w-1/2 md:w-1/3 m-auto rounded">Submit</button>
+                    </form>
+                    <form action="/cancel">
+                        <button type="submit">Cancel</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {%endif%}
     </div>
-    <!-- <script src="preview.js"></script> -->
-    <script src="script.js"></script>
+
+</div>
+</div>
+<!-- <script src="preview.js"></script> -->
+<script src="script.js"></script>
 </div>
 
-    {% endblock %}
+{% endblock %}

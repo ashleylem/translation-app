@@ -786,10 +786,6 @@ video {
   height: 1.5rem;
 }
 
-.h-8 {
-  height: 2rem;
-}
-
 .h-full {
   height: 100%;
 }
@@ -818,10 +814,6 @@ video {
   width: 3rem;
 }
 
-.w-3\/4 {
-  width: 75%;
-}
-
 .w-4 {
   width: 1rem;
 }
@@ -836,10 +828,6 @@ video {
 
 .w-6 {
   width: 1.5rem;
-}
-
-.w-8 {
-  width: 2rem;
 }
 
 .w-full {
@@ -1295,10 +1283,6 @@ video {
   line-height: 1;
 }
 
-.leading-normal {
-  line-height: 1.5;
-}
-
 .leading-snug {
   line-height: 1.375;
 }
@@ -1473,11 +1457,6 @@ video {
 .focus-within\:text-cyan-400:focus-within {
   --tw-text-opacity: 1;
   color: rgb(34 211 238 / var(--tw-text-opacity));
-}
-
-.hover\:bg-blue-100:hover {
-  --tw-bg-opacity: 1;
-  background-color: rgb(219 234 254 / var(--tw-bg-opacity));
 }
 
 .hover\:bg-blue-50:hover {

@@ -3,6 +3,7 @@ import os
 import openai
 import docx
 import cv2
+import shutil
 from cv2 import imdecode
 from itertools import groupby
 import subprocess
@@ -26,8 +27,8 @@ import numpy as np
 
 
 
-def image_to_docx(file_stream, target_language, source_language, translator_name):
-    source_text = ocr_image(file_stream)
+def image_to_docx(file_path, target_language, source_language, translator_name):
+    source_text = ocr_image(file_path)
     if not source_text.strip():
         raise ValueError("No text detected in the image file")
     
@@ -99,7 +100,7 @@ Notary Public"""
     output_stream.seek(0)
     return output_stream
 
-def preprocess_image(file):
+def preprocess_image(file, filename):
     # Convert the file object to a NumPy array
     file_bytes = np.asarray(bytearray(file.read()), dtype=np.uint8)
 
@@ -136,14 +137,15 @@ def preprocess_image(file):
     # Save the preprocessed image as a JPEG using PIL
     pil_img.save(file_path)
 
-    return file_path
+    return 'preview.jpg'
 
 
-def ocr_image(file):
+def ocr_image(file_path):
+    img =cv2.imread(file_path)
 
     # Perform OCR
     data = pytesseract.image_to_string(
-        new_img, config="--psm 3")
+        img, config="--psm 3")
     return data
 
 
