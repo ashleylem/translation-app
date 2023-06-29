@@ -6,6 +6,9 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{url_for('static', filename='css/main.css')}}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;800&display=swap" rel="stylesheet">
     <title>{% block title %}{% endblock %} Translator</title>
 </head>
 
@@ -61,12 +64,12 @@
         {% if user_logged_in %}
         <a class="hidden lg:inline-block lg:ml-auto lg:mr-3 py-2 px-6 bg-green-600 hover:bg-green-700 text-sm text-white font-bold  rounded-xl transition duration-200"
             href="{{ url_for('profile') }}">Profile</a>
-            <form action="{{ url_for('logout') }}" method="POST">
-                <input type="hidden" name="_method" value="POST">
-                <button
-                    class="hidden lg:inline-block py-2 px-6 text-sm text-center text-white font-semibold bg-red-600 hover:bg-red-700 rounded-xl"
-                    type="submit">Logout</button>
-            </form>
+        <form action="{{ url_for('logout') }}" method="POST">
+            <input type="hidden" name="_method" value="POST">
+            <button
+                class="hidden lg:inline-block py-2 px-6 text-sm text-center text-white font-semibold bg-red-600 hover:bg-red-700 rounded-xl"
+                type="submit">Logout</button>
+        </form>
         {% else %}
         <a class="hidden lg:inline-block lg:ml-auto lg:mr-3 py-2 px-6 bg-gray-50 hover:bg-gray-100 text-sm text-gray-900 font-bold  rounded-xl transition duration-200"
             href="{{ url_for('login') }}">Sign In</a>
